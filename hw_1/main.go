@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/beevik/ntp"
-	"os"
+	"log"
 	"time"
 )
 
@@ -15,9 +15,7 @@ func main() {
 
 	exactTime, err := ntp.Time(hostName)
 	if err != nil {
-		code, _ := os.Stderr.WriteString(err.Error())
-		os.Exit(code)
-	} else {
-		fmt.Println("Точное время:", exactTime)
+		log.Fatal(err.Error())
 	}
+	fmt.Println("Точное время:", exactTime)
 }
