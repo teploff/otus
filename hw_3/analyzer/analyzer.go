@@ -6,24 +6,26 @@ import (
 	"strings"
 )
 
-func NewAnalyzer(inputText string) (Analyzer, error) {
+const maxWordAmount = 10
+
+func NewFrequencyAnalyzer(inputText string) (FrequencyAnalyzer, error) {
 	wordRegExp, err := regexp.Compile(`[a-zA-Zа-яА-я]+`)
 	if err != nil {
-		return Analyzer{}, err
+		return FrequencyAnalyzer{}, err
 	}
 
-	return Analyzer{
+	return FrequencyAnalyzer{
 		inputText:  inputText,
 		wordRegExp: wordRegExp,
 	}, nil
 }
 
-type Analyzer struct {
+type FrequencyAnalyzer struct {
 	inputText  string
 	wordRegExp *regexp.Regexp
 }
 
-func (a Analyzer) Do() []string {
+func (a FrequencyAnalyzer) Search() []string {
 	words := a.wordRegExp.FindAllString(a.inputText, -1)
 	if words == nil {
 		return nil
@@ -39,7 +41,7 @@ func (a Analyzer) Do() []string {
 	sort.Sort(sort.Reverse(uniqueWords))
 
 	result := make([]string, 0, len(uniqueWords))
-	for i := 0; i < len(uniqueWords)-1 || i < 10; i++ {
+	for i := 0; i < len(uniqueWords)-1 && i < maxWordAmount; i++ {
 		result = append(result, uniqueWords[i].Word)
 	}
 

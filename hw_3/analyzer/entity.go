@@ -8,7 +8,7 @@ type Pair struct {
 }
 
 func (p Pair) String() string {
-	return fmt.Sprintf("word <%s> occurs <%d> times", p.Word, p.Count)
+	return fmt.Sprintf("Word <%s> occurs <%d> times", p.Word, p.Count)
 }
 
 type Pairs []Pair
