@@ -39,9 +39,10 @@ func (a FrequencyAnalyzer) Search() []string {
 	}
 
 	sort.Sort(sort.Reverse(uniqueWords))
+	uniqueWords.DeleteUniqueWords()
 
 	result := make([]string, 0, len(uniqueWords))
-	for i := 0; i < len(uniqueWords)-1 && i < maxWordAmount; i++ {
+	for i := 0; i < len(uniqueWords) && i < maxWordAmount; i++ {
 		result = append(result, uniqueWords[i].Word)
 	}
 

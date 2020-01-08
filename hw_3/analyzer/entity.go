@@ -38,3 +38,18 @@ func (p *Pairs) Append(word string) {
 		Count: 1,
 	})
 }
+
+func (p *Pairs) DeleteUniqueWords() {
+	uniqueWordExist := true
+
+	for uniqueWordExist {
+		uniqueWordExist = false
+		for index, pair := range *p {
+			if pair.Count == 1 {
+				*p = append((*p)[:index], (*p)[index+1:]...)
+				uniqueWordExist = true
+				break
+			}
+		}
+	}
+}
