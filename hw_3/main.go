@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"otus/hw_3/analyzer"
+	"github.com/teploff/otus/hw_3/analyzer"
 )
 
 func main() {
