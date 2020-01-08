@@ -6,12 +6,10 @@ import (
 )
 
 func main() {
-	analyz, err := analyzer.NewFrequencyAnalyzer("привет как дела деЛа тВои твОи Саша саша ")
-	//analyz, err := analyzer.NewFrequencyAnalyzer("rivet privet kaKa kak dela tvoi sasha")
+	// Usage example
+	frequencyAnalyzer, err := analyzer.NewFrequencyAnalyzer("Hello heLLo otus Otus otUs")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(analyz.Search())
-	//_, _ = Top10("привет как дела деЛа тВои твОи Саша саша ")
-	//_, _ = Top10("Privet privet kaKa kak dela tvoi sasha")
+	fmt.Println(frequencyAnalyzer.Search())
 }
