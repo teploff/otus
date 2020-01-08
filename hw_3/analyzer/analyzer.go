@@ -8,8 +8,7 @@ import (
 
 const maxWordAmount = 10
 
-// A frequency analyzer that accepts a text string as input (inputText) and returns a slice with the 10 most frequently
-// encountered words in the text (When call method Search).
+// NewFrequencyAnalyzer get FrequencyAnalyzer instance
 func NewFrequencyAnalyzer(inputText string) (FrequencyAnalyzer, error) {
 	wordRegExp, err := regexp.Compile(`[a-zA-Zа-яА-я]+`)
 	if err != nil {
@@ -22,13 +21,14 @@ func NewFrequencyAnalyzer(inputText string) (FrequencyAnalyzer, error) {
 	}, nil
 }
 
-// A frequency analyzer
+// FrequencyAnalyzer accepts a text string as input (inputText) and returns a slice with the 10 most frequently
+// encountered words in the text (When call method Search).
 type FrequencyAnalyzer struct {
 	inputText  string
 	wordRegExp *regexp.Regexp
 }
 
-// Returns a slice with the 10 most frequently encountered words in the text
+// Search method returns a slice with the 10 most frequently encountered words in the text
 func (a FrequencyAnalyzer) Search() []string {
 	words := a.wordRegExp.FindAllString(a.inputText, -1)
 	if words == nil {
