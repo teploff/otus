@@ -8,17 +8,18 @@ import (
 
 const maxWordAmount = 10
 
-// NewFrequencyAnalyzer get FrequencyAnalyzer instance
-func NewFrequencyAnalyzer(inputText string) (FrequencyAnalyzer, error) {
-	wordRegExp, err := regexp.Compile(`[a-zA-Zа-яА-я]+`)
-	if err != nil {
-		return FrequencyAnalyzer{}, err
-	}
+var wordRegExp *regexp.Regexp
 
+func init() {
+	wordRegExp = regexp.MustCompile(`[a-zA-Zа-яА-я]+`)
+}
+
+// NewFrequencyAnalyzer get FrequencyAnalyzer instance
+func NewFrequencyAnalyzer(inputText string) FrequencyAnalyzer {
 	return FrequencyAnalyzer{
 		inputText:  inputText,
 		wordRegExp: wordRegExp,
-	}, nil
+	}
 }
 
 // FrequencyAnalyzer accepts a text string as input (inputText) and returns a slice with the 10 most frequently
@@ -43,7 +44,6 @@ func (a FrequencyAnalyzer) Search() []string {
 	}
 
 	sort.Sort(sort.Reverse(uniqueWords))
-	uniqueWords.DeleteUniqueWords()
 
 	result := make([]string, 0, len(uniqueWords))
 	for i := 0; i < len(uniqueWords) && i < maxWordAmount; i++ {

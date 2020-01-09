@@ -7,9 +7,6 @@ import (
 
 func main() {
 	// Usage example
-	frequencyAnalyzer, err := analyzer.NewFrequencyAnalyzer("Hello heLLo otus Otus otUs")
-	if err != nil {
-		panic(err)
-	}
+	frequencyAnalyzer := analyzer.NewFrequencyAnalyzer("hello hello my my world")
 	fmt.Println(frequencyAnalyzer.Search())
 }
