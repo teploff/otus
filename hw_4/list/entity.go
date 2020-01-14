@@ -77,7 +77,7 @@ func (l *List) lazyInit() {
 	}
 }
 
-// insert is a convenience wrapper for insert(&Item{Value: v}, at).
+// insert method inserts item after at with value v increments l.len, and returns inserted item.
 func (l *List) insert(v interface{}, at *Item) *Item {
 	item := &Item{value: v}
 
