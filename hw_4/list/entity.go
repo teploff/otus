@@ -1,127 +1,120 @@
 package list
 
-// List is data structure known as a Doubly linked list
-// ref: https://en.wikipedia.org/wiki/Doubly_linked_list
-type List struct {
-	length int
-	head   *Item
-	tail   *Item
-}
-
-// Len method returns length of List data structure.
-func (l List) Len() int {
-	return l.length
-}
-
-// First method returns the first item.
-func (l List) First() *Item {
-	if l.head == nil && l.tail != nil {
-		return l.tail
-	}
-
-	return l.head
-}
-
-// Last method returns the last item.
-func (l List) Last() *Item {
-	if l.tail == nil && l.head != nil {
-		return l.head
-	}
-
-	return l.tail
-}
-
-// PushFront method adds item to the head of List data structure with value - v.
-func (l *List) PushFront(v interface{}) {
-	item := new(Item)
-
-	if l.head == nil && l.tail == nil {
-		item.value = v
-		l.head = item
-	} else if l.head != nil {
-		item.prev = l.head
-		item.value = v
-		if l.tail == nil {
-			l.tail = l.head
-			l.tail.next = item
-		}
-		l.head.next = item
-	} else {
-		item.prev = l.tail
-		item.value = v
-		l.tail.next = item
-	}
-
-	l.length++
-	l.head = item
-}
-
-// PushBack method adds item to the tail of List data structure with value - v.
-func (l *List) PushBack(v interface{}) {
-	item := new(Item)
-
-	if l.head == nil && l.tail == nil {
-		item.value = v
-		l.tail = item
-	} else if l.tail != nil {
-		item.next = l.tail
-		item.value = v
-		if l.head == nil {
-			l.head = l.tail
-			l.head.prev = item
-		}
-		l.tail.prev = item
-	} else {
-		item.next = l.head
-		item.value = v
-		l.head.prev = item
-	}
-
-	l.length++
-	l.tail = item
-}
-
-// Remove method removes item - Item of the List data structure.
-func (l *List) Remove(i Item) {
-	if l.length == 0 {
-		return
-	}
-
-	if i.prev == nil && i.next == nil {
-		l.head = nil
-		l.tail = nil
-	} else if i.prev != nil && i.next != nil {
-		i.prev.next = i.next
-		i.next.prev = i.prev
-	} else if i.prev == nil {
-		i.next.prev = nil
-		l.tail = i.next
-	} else {
-		i.prev.next = nil
-		l.head = i.prev
-	}
-
-	l.length--
-}
-
 // Item is an entity List data structure or node of it.
 type Item struct {
-	next  *Item
-	prev  *Item
-	value interface{}
+	next, prev *Item
+	list       *List
+	value      interface{}
 }
 
 // Next method returns the next Item instance behind current Item.
-func (i Item) Next() *Item {
-	return i.next
+func (i *Item) Next() *Item {
+	if p := i.next; i.list != nil && p != &i.list.head {
+		return p
+	}
+
+	return nil
 }
 
 // Prev method returns the previous Item instance before current Item.
-func (i Item) Prev() *Item {
-	return i.prev
+func (i *Item) Prev() *Item {
+	if p := i.prev; i.list != nil && p != &i.list.head {
+		return p
+	}
+
+	return nil
 }
 
 // Value method return value of the current Item.
-func (i Item) Value() interface{} {
+func (i *Item) Value() interface{} {
 	return i.value
+}
+
+// List is data structure known as a Doubly linked list
+// ref: https://en.wikipedia.org/wiki/Doubly_linked_list
+type List struct {
+	head   Item
+	length int
+}
+
+// Init initializes or clears list l.
+func (l *List) Init() *List {
+	l.head.next = &l.head
+	l.head.prev = &l.head
+	l.length = 0
+
+	return l
+}
+
+// NewList returns an initialized list.
+func NewList() *List { return new(List).Init() }
+
+// Len method returns length of List data structure.
+func (l *List) Len() int { return l.length }
+
+// First method returns the first item.
+func (l *List) First() *Item {
+	if l.length == 0 {
+		return nil
+	}
+
+	return l.head.next
+}
+
+// Last method returns the last item.
+func (l *List) Last() *Item {
+	if l.length == 0 {
+		return nil
+	}
+
+	return l.head.prev
+}
+
+// lazyInit lazily initializes a zero List value.
+func (l *List) lazyInit() {
+	if l.head.next == nil {
+		l.Init()
+	}
+}
+
+// insert is a convenience wrapper for insert(&Item{Value: v}, at).
+func (l *List) insert(v interface{}, at *Item) *Item {
+	item := &Item{value: v}
+
+	nextItem := at.next
+	at.next = item
+	item.prev = at
+	item.next = nextItem
+	nextItem.prev = item
+	item.list = l
+	l.length++
+
+	return item
+}
+
+// PushFront method adds item to the head of List data structure with value - v.
+func (l *List) PushFront(v interface{}) *Item {
+	l.lazyInit()
+
+	return l.insert(v, &l.head)
+}
+
+// PushBack method adds item to the tail of List data structure with value - v.
+func (l *List) PushBack(v interface{}) *Item {
+	l.lazyInit()
+	return l.insert(v, l.head.prev)
+}
+
+// Remove method removes item - Item of the List data structure.
+func (l *List) Remove(item *Item) interface{} {
+	if item.list == l {
+		item.prev.next = item.next
+		item.next.prev = item.prev
+		item.next = nil
+		item.prev = nil
+		item.list = nil
+		l.length--
+	}
+
+	return item.Value
 }
