@@ -55,24 +55,17 @@ func (sc StringConverter) group() []string {
 		return groups
 	}
 
-	index := 0
-	var indexInGroup bool
-	for index < len(sc.inputRunes) {
-		for _, group := range matches {
-			if group[0] == index {
-				groups = append(groups, sc.inputString[group[0]:group[1]])
-				index = group[1]
-				indexInGroup = true
-				break
-			}
+	currentIndex := 0
+	for _, match := range matches {
+		if currentIndex < match[0] {
+			groups = append(groups, sc.inputString[currentIndex:match[0]])
 		}
+		groups = append(groups, sc.inputString[match[0]:match[1]])
+		currentIndex = match[1]
+	}
 
-		if !indexInGroup {
-			groups = append(groups, string(sc.inputRunes[index]))
-			index++
-		} else {
-			indexInGroup = false
-		}
+	if currentIndex != len(sc.inputString) {
+		groups = append(groups, sc.inputString[currentIndex:])
 	}
 
 	return groups

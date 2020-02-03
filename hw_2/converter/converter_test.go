@@ -43,7 +43,7 @@ func TestValidInputStringWithDigits(t *testing.T) {
 		in  string
 		out string
 	}{
-		//{"abed", "abed"},
+		{"abed", "abed"},
 		{"a4bc2d5e", "aaaabccddddde"},
 	}
 
