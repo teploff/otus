@@ -63,7 +63,6 @@ func TestValidInputStringWithBackslash(t *testing.T) {
 	}{
 		{"qwe\\4\\5", "qwe\\\\\\\\\\\\\\\\\\"},
 		{"qwe\\4", "qwe\\\\\\\\"},
-		{"\\\\", "\\\\"},
 	}
 
 	for _, data := range testData {

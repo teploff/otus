@@ -20,7 +20,6 @@ func init() {
 func NewStringConverter(input string) StringConverter {
 	return StringConverter{
 		inputString:      input,
-		inputRunes:       []rune(input),
 		validationRegExp: validationRegExp,
 		groupRegExp:      groupRegExp,
 	}
@@ -29,7 +28,6 @@ func NewStringConverter(input string) StringConverter {
 // StringConverter performs a primitive string unpacking containing repeated characters / runes
 type StringConverter struct {
 	inputString      string
-	inputRunes       []rune
 	validationRegExp *regexp.Regexp
 	groupRegExp      *regexp.Regexp
 }
@@ -43,68 +41,63 @@ func (sc StringConverter) validate() error {
 	return nil
 }
 
-// group grouping complex chars, for example a4 or \4 or \\ in input string
-// Or if there is no special char in input string, all string in group
-func (sc StringConverter) group() []string {
-	groups := make([]string, 0)
+// do grouping complex chars, for example a4 or \4 or \\ in input string
+// Or if there is no special char in input string, all string in do
+func (sc StringConverter) do() string {
+	result := make([]string, 0)
 
-	// if special chars not found return original string as single group
+	// if special chars not found return original string as single do
 	matches := sc.groupRegExp.FindAllIndex([]byte(sc.inputString), -1)
 	if matches == nil {
-		groups = append(groups, sc.inputString)
-		return groups
+		return sc.inputString
 	}
 
+	// else find all special do by indexes are find by regExp from input string
 	currentIndex := 0
 	for _, match := range matches {
 		if currentIndex < match[0] {
-			groups = append(groups, sc.inputString[currentIndex:match[0]])
+			result = append(result, sc.inputString[currentIndex:match[0]])
 		}
-		groups = append(groups, sc.inputString[match[0]:match[1]])
+		unpackedString := sc.unpack(sc.inputString[match[0]:match[1]])
+		result = append(result, unpackedString)
 		currentIndex = match[1]
 	}
 
 	if currentIndex != len(sc.inputString) {
-		groups = append(groups, sc.inputString[currentIndex:])
+		result = append(result, sc.inputString[currentIndex:])
 	}
 
-	return groups
+	return strings.Join(result, "")
 }
 
 // unpack extracting groups
-func (sc StringConverter) unpack(groups []string) string {
-	result := make([]string, 0)
+func (sc StringConverter) unpack(group string) string {
+	unpackedString := make([]string, 0)
 
-	// if only string
-	if len(groups) == 1 {
-		return groups[0]
+	runes := []rune(group)
+	if unicode.IsDigit(runes[1]) {
+		digits, _ := strconv.Atoi(string(runes[1:]))
+		tmp := sc.extendLine(string(runes[0]), digits)
+		unpackedString = append(unpackedString, tmp)
+	} else if len(runes) == 2 {
+		unpackedString = append(unpackedString, string(runes[0]))
+	} else {
+		digits, _ := strconv.Atoi(string(runes[2:]))
+		tmp := sc.extendLine(string(runes[0]), digits)
+		unpackedString = append(unpackedString, tmp)
 	}
 
-	for _, group := range groups {
-		runes := []rune(group)
-		if len(runes) == 1 {
-			result = append(result, string(runes))
-		} else if (unicode.IsLetter(runes[0]) || runes[0] == '\\') && unicode.IsDigit(runes[1]) {
-			tmp := ""
-			digits, _ := strconv.Atoi(string(runes[1:]))
-			for i := 0; i < digits; i++ {
-				tmp += string(runes[0])
-			}
-			result = append(result, tmp)
-		} else if len(runes) == 2 && runes[0] == '\\' && runes[1] == '\\' {
-			result = append(result, string(runes[0]))
-		} else if runes[0] == '\\' && runes[1] == '\\' && unicode.IsDigit(runes[2]) {
-			tmp := ""
-			digits, _ := strconv.Atoi(string(runes[2:]))
-			for i := 0; i < digits; i++ {
-				tmp += string(runes[0])
-			}
-			result = append(result, tmp)
-		} else {
-			result = append(result, string(runes))
-		}
+	return strings.Join(unpackedString, "")
+}
+
+// extendLine returns characters char count times
+func (sc StringConverter) extendLine(char string, count int) string {
+	out := ""
+	for i := 0; i < count; i++ {
+		out += char
 	}
-	return strings.Join(result, "")
+
+	return out
 }
 
 // Do launch string converter
@@ -113,9 +106,7 @@ func (sc StringConverter) Do() (string, error) {
 		return "", err
 	}
 
-	groups := sc.group()
-
-	result := sc.unpack(groups)
+	result := sc.do()
 
 	return result, nil
 }
