@@ -27,8 +27,7 @@ func TestIncorrectInput(t *testing.T) {
 	}
 
 	for _, data := range inputData {
-		c := NewCarbon(data.src, data.dest, data.offset, data.limit)
-		err := c.Copy()
+		_, err := NewCarbon(data.src, data.dest, data.offset, data.limit)
 		assert.Error(t, err)
 		assert.Equal(t, errorInvalidValue, err)
 	}
@@ -42,8 +41,7 @@ func TestSrsFileNotFound(t *testing.T) {
 	offset := int64(0)
 	limit := int64(10)
 
-	c := NewCarbon(srcFilePath, destFilePath, offset, limit)
-	err := c.Copy()
+	_, err := NewCarbon(srcFilePath, destFilePath, offset, limit)
 	assert.Error(t, err)
 }
 
@@ -57,7 +55,8 @@ func TestCopyAllPayload(t *testing.T) {
 	err := utils.WriteFile(srcFilePath, srcPayload)
 	assert.NoError(t, err)
 
-	c := NewCarbon(srcFilePath, destFilePath, 0, 0)
+	c, err := NewCarbon(srcFilePath, destFilePath, 0, 0)
+	assert.NoError(t, err)
 	err = c.Copy()
 
 	copyPayload, err := ioutil.ReadFile(destFilePath) // прочитать весь файл по имени
@@ -78,8 +77,10 @@ func TestCopyAllPayloadFromEmptyFile(t *testing.T) {
 
 	_ = utils.WriteFile(srcFilePath, srcPayload)
 
-	c := NewCarbon(srcFilePath, destFilePath, 0, 5)
-	err := c.Copy()
+	c, err := NewCarbon(srcFilePath, destFilePath, 0, 5)
+	assert.NoError(t, err)
+	err = c.Copy()
+	assert.NoError(t, err)
 
 	copyPayload, err := ioutil.ReadFile(destFilePath) // прочитать весь файл по имени
 
@@ -99,8 +100,10 @@ func TestCopyWithOffset(t *testing.T) {
 
 	_ = utils.WriteFile(srcFilePath, srcPayload)
 
-	c := NewCarbon(srcFilePath, destFilePath, 1, 10)
-	err := c.Copy()
+	c, err := NewCarbon(srcFilePath, destFilePath, 1, 10)
+	assert.NoError(t, err)
+	err = c.Copy()
+	assert.NoError(t, err)
 
 	copyPayload, err := ioutil.ReadFile(destFilePath) // прочитать весь файл по имени
 
@@ -120,8 +123,10 @@ func Test1CopyWithOffset(t *testing.T) {
 
 	_ = utils.WriteFile(srcFilePath, srcPayload)
 
-	c := NewCarbon(srcFilePath, destFilePath, 10, 0)
-	err := c.Copy()
+	c, err := NewCarbon(srcFilePath, destFilePath, 10, 0)
+	assert.NoError(t, err)
+	err = c.Copy()
+	assert.NoError(t, err)
 
 	copyPayload, err := ioutil.ReadFile(destFilePath) // прочитать весь файл по имени
 

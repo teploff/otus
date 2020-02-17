@@ -12,44 +12,37 @@ var (
 )
 
 type Carbon struct {
-	srcFilePath, destFilePath string
-	offset, limit             int64
+	srcFile, destFile *os.File
+	offset, limit     int64
 }
 
-func NewCarbon(src, dest string, offset, limit int64) Carbon {
-	return Carbon{
-		srcFilePath:  src,
-		destFilePath: dest,
-		offset:       offset,
-		limit:        limit,
-	}
-}
-
-func (c Carbon) Copy() error {
-	if err := c.validate(); err != nil {
-		return err
+func NewCarbon(srcFilePath, destFilePath string, offset, limit int64) (Carbon, error) {
+	if err := validate(offset, limit); err != nil {
+		return Carbon{}, err
 	}
 
-	srcFile, err := os.Open(c.srcFilePath)
+	src, dest, err := filesInit(srcFilePath, destFilePath)
 	if err != nil {
-		return err
+		return Carbon{}, err
 	}
-	defer srcFile.Close()
-	srcInfo, err := srcFile.Stat()
+
+	return Carbon{
+		srcFile:  src,
+		destFile: dest,
+		offset:   offset,
+		limit:    limit,
+	}, nil
+}
+
+func (c *Carbon) Copy() error {
+	defer c.srcFile.Close()
+	defer c.destFile.Close()
+
+	srcInfo, err := c.srcFile.Stat()
 	if err != nil {
 		return err
 	}
 	srcLength := srcInfo.Size()
-
-	destFile, err := os.Open(c.destFilePath)
-	if err != nil {
-		destFile, err = os.Create(c.destFilePath)
-		if err != nil {
-			return err
-		}
-	}
-	defer destFile.Close()
-
 	if srcLength == 0 {
 		return nil
 	}
@@ -67,13 +60,13 @@ func (c Carbon) Copy() error {
 	for offset < c.limit {
 		var read int
 		if offset == 0 {
-			read, err = srcFile.ReadAt(buffer, c.offset)
+			read, err = c.srcFile.ReadAt(buffer, c.offset)
 		} else {
-			read, err = srcFile.Read(buffer)
+			read, err = c.srcFile.Read(buffer)
 		}
 		offset += int64(read)
 		if err == io.EOF {
-			if _, err = destFile.Write(buffer[:read]); err != nil {
+			if _, err = c.destFile.Write(buffer[:read]); err != nil {
 				return err
 			}
 			break
@@ -82,7 +75,7 @@ func (c Carbon) Copy() error {
 			return err
 		}
 
-		if _, err = destFile.Write(buffer[:read]); err != nil {
+		if _, err = c.destFile.Write(buffer[:read]); err != nil {
 			return err
 		}
 	}
@@ -90,10 +83,27 @@ func (c Carbon) Copy() error {
 	return nil
 }
 
-func (c Carbon) validate() error {
-	if c.limit < 0 || c.offset < 0 {
+func validate(limit, offset int64) error {
+	if limit < 0 || offset < 0 {
 		return errorInvalidValue
 	}
 
 	return nil
+}
+
+func filesInit(srcFilePath, destFilePath string) (src *os.File, dest *os.File, err error) {
+	src, err = os.Open(srcFilePath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	dest, err = os.Open(destFilePath)
+	if err != nil {
+		dest, err = os.Create(destFilePath)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	return src, dest, nil
 }
