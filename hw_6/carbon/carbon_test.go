@@ -12,6 +12,7 @@ import (
 
 var workDirectoryPath, _ = os.Getwd()
 
+// TestCase checking invalid passed limit & offset arguments
 func TestIncorrectInput(t *testing.T) {
 	srcUUID := uuid.NewV4()
 	destUUID := uuid.NewV4()
@@ -33,6 +34,7 @@ func TestIncorrectInput(t *testing.T) {
 	}
 }
 
+// TestCase checking that source file doesn't exist
 func TestSrsFileNotFound(t *testing.T) {
 	srcUUID := uuid.NewV4()
 	destUUID := uuid.NewV4()
@@ -45,6 +47,7 @@ func TestSrsFileNotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
+// TestCase checking that all source file payload is copied
 func TestCopyAllPayload(t *testing.T) {
 	srcUUID := uuid.NewV4()
 	destUUID := uuid.NewV4()
@@ -68,6 +71,7 @@ func TestCopyAllPayload(t *testing.T) {
 	_ = os.Remove(destFilePath)
 }
 
+// TestCase checking that empty file is copied to another
 func TestCopyAllPayloadFromEmptyFile(t *testing.T) {
 	srcUUID := uuid.NewV4()
 	destUUID := uuid.NewV4()
@@ -91,7 +95,8 @@ func TestCopyAllPayloadFromEmptyFile(t *testing.T) {
 	_ = os.Remove(destFilePath)
 }
 
-func TestCopyWithOffset(t *testing.T) {
+// TestCase checking that all source file payload is copied with unit offset
+func TestCopyWithUnitOffset(t *testing.T) {
 	srcUUID := uuid.NewV4()
 	destUUID := uuid.NewV4()
 	srcFilePath := fmt.Sprintf(workDirectoryPath+"/%s", srcUUID)
@@ -114,7 +119,8 @@ func TestCopyWithOffset(t *testing.T) {
 	_ = os.Remove(destFilePath)
 }
 
-func Test1CopyWithOffset(t *testing.T) {
+// TestCase checking that all source file payload is copied with offset
+func TestCopyWithOffset(t *testing.T) {
 	srcUUID := uuid.NewV4()
 	destUUID := uuid.NewV4()
 	srcFilePath := fmt.Sprintf(workDirectoryPath+"/%s", srcUUID)
