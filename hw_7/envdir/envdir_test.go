@@ -1,6 +1,7 @@
 package envdir
 
 import (
+	"bytes"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"os/exec"
@@ -39,10 +40,14 @@ func TestReadDir(t *testing.T) {
 	assert.Equal(t, expected, env)
 }
 
+// TestCase running cmd with reading environments from the directory. Cmd and directory path indicated in build.sh
 func TestRunCmd(t *testing.T) {
-	// /Users/aleksandrteplov/Desktop/otus/hw_7/env sh -c "echo $a"
-	cmd := exec.Command("/bin/bash", "build.sh")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+	buf := new(bytes.Buffer)
+
+	commandA := exec.Command("/bin/bash", "build.sh")
+	commandA.Stdout = buf
+	assert.NoError(t, commandA.Run())
+	expected := "1 2 3 4\n"
+	assert.Equal(t, expected, buf.String())
 
 }

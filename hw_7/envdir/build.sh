@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go build ../main.go && ./main ../env sh -c "echo $A"
+cd .. && go build main.go && ./main ./env sh -c "echo \$A \$B \$C \$D"
