@@ -3,6 +3,7 @@ package envdir
 import (
 	"github.com/stretchr/testify/assert"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 )
@@ -29,12 +30,19 @@ func TestReadDir(t *testing.T) {
 	assert.NotNil(t, env)
 
 	expected := map[string]string{
-		"a":        "1",
-		"b":        "2",
-		"c":        "3",
-		"d":        "4",
-		"LOCALDIR": ".",
+		"A": "1",
+		"B": "2",
+		"C": "3",
+		"D": "4",
 	}
 
 	assert.Equal(t, expected, env)
+}
+
+func TestRunCmd(t *testing.T) {
+	// /Users/aleksandrteplov/Desktop/otus/hw_7/env sh -c "echo $a"
+	cmd := exec.Command("/bin/bash", "build.sh")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+
 }
