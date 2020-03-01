@@ -5,7 +5,7 @@ import (
 	"flag"
 	"github.com/otus/calendar/configs"
 	"github.com/otus/calendar/infrastrucure/logger"
-	http2 "github.com/otus/calendar/internal/http"
+	"github.com/otus/calendar/infrastrucure/server"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -28,7 +28,7 @@ func main() {
 
 	logger.InitZapLogger(cfg.Logger)
 
-	srv := http2.NewHTTPServer(cfg.Server)
+	srv := server.NewHTTPServer(cfg.Server)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
