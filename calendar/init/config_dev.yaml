@@ -1,0 +1,5 @@
+server:
+  http_listen: "127.0.0.1:8091"
+logger:
+  log_file: "calendar.log"
+  log_level: "debug"
