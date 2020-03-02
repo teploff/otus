@@ -82,11 +82,15 @@ func (r *EventRepository) Delete(events ...model.Event) error {
 	// transaction delete
 	sort.Ints(indexesMustDelete)
 	currEvents := make([]model.Event, 0, len(r.events)-len(indexesMustDelete))
-	for index, event := range events {
+	for index, event := range r.events {
+		eventFind := true
 		for _, value := range indexesMustDelete {
 			if index == value {
+				eventFind = false
 				break
 			}
+		}
+		if eventFind {
 			currEvents = append(currEvents, event)
 		}
 	}
