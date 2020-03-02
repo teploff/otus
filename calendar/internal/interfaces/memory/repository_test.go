@@ -299,3 +299,62 @@ func TestEventRepositoryGetAbsentEventByID(t *testing.T) {
 	assert.Error(t, err)
 	assert.Empty(t, event)
 }
+
+// Test Case getting one existed event by payload from the repository
+func TestEventRepositoryGetOneExistedEventByPayload(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 3")
+
+	_ = repo.Insert(event1, event2, event3)
+	events, err := repo.GetByPayload(event3.GetPayload())
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(events))
+	assert.Equal(t, event3.GetID(), events[0].GetID())
+	assert.Equal(t, event3.GetPayload(), events[0].GetPayload())
+	assert.Equal(t, event3.GetCreateTime(), events[0].GetCreateTime())
+}
+
+// Test Case getting several existed event by payload from the repository
+func TestEventRepositoryGetSeveralExistedEventByPayload(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 1")
+
+	_ = repo.Insert(event1, event2, event3)
+	events, err := repo.GetByPayload(event3.GetPayload())
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(events))
+	assert.Equal(t, event1.GetID(), events[0].GetID())
+	assert.Equal(t, event1.GetPayload(), events[0].GetPayload())
+	assert.Equal(t, event1.GetCreateTime(), events[0].GetCreateTime())
+	assert.Equal(t, event3.GetID(), events[1].GetID())
+	assert.Equal(t, event3.GetPayload(), events[1].GetPayload())
+	assert.Equal(t, event3.GetCreateTime(), events[1].GetCreateTime())
+}
+
+// Test Case getting event by payload from the empty repository
+func TestEventRepositoryGetEventByPayloadFromEmptyRepository(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+
+	events, err := repo.GetByPayload(event1.GetPayload())
+	assert.Error(t, err)
+	assert.Empty(t, repo.events)
+	assert.Empty(t, events)
+}
+
+// Test Case getting absent event by payload from the repository
+func TestEventRepositoryGetAbsentEventByPayload(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 3")
+
+	_ = repo.Insert(event1, event3)
+	event, err := repo.GetByPayload(event2.GetPayload())
+	assert.Error(t, err)
+	assert.Empty(t, event)
+}
