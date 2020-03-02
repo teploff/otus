@@ -260,3 +260,42 @@ func TestEventRepositoryUpdateSeveralAbsentEventFromNotEmptyRepository(t *testin
 	assert.Equal(t, event1.GetPayload(), repo.events[0].GetPayload())
 	assert.Equal(t, event1.GetCreateTime(), repo.events[0].GetCreateTime())
 }
+
+// Test Case getting existed event by id from the repository
+func TestEventRepositoryGetExistedEventByID(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 3")
+
+	_ = repo.Insert(event1, event2, event3)
+	event, err := repo.GetByID(event3.GetID())
+	assert.NoError(t, err)
+	assert.Equal(t, event3.GetID(), event.GetID())
+	assert.Equal(t, event3.GetPayload(), event.GetPayload())
+	assert.Equal(t, event3.GetCreateTime(), event.GetCreateTime())
+}
+
+// Test Case getting event by id from the empty repository
+func TestEventRepositoryGetEventByIDFromEmptyRepository(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+
+	event, err := repo.GetByID(event1.GetID())
+	assert.Error(t, err)
+	assert.Empty(t, repo.events)
+	assert.Empty(t, event)
+}
+
+// Test Case getting absent event by id from the repository
+func TestEventRepositoryGetAbsentEventByID(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 3")
+
+	_ = repo.Insert(event1, event3)
+	event, err := repo.GetByID(event2.GetID())
+	assert.Error(t, err)
+	assert.Empty(t, event)
+}
