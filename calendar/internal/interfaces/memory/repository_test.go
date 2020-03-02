@@ -8,21 +8,6 @@ import (
 	"time"
 )
 
-//testData := []struct {
-//	in  string
-//	out string
-//}{
-//	{"abed", "abed"},
-//	{"a4bc2d5e", "aaaabccddddde"},
-//}
-//
-//for _, data := range testData {
-//	converter := NewStringConverter(data.in)
-//	out, err := converter.Do()
-//	assert.Nil(t, err)
-//	assert.Equal(t, out, data.out)
-//}
-
 // Test Case insert one event into empty repository
 func TestEventRepositoryInsertOneIntoEmptySliceEvents(t *testing.T) {
 	repo := NewEventRepository()
@@ -437,6 +422,88 @@ func TestEventRepositoryGetEventsEarlierThanTimeFromTheAfterEvents(t *testing.T)
 
 	_ = repo.Insert(event1, event2, event3)
 	events, err := repo.GetEarlierThanTime(timeNow)
+	assert.Error(t, err)
+	assert.Empty(t, events)
+}
+
+// Test Case getting one event later than time t from the repository
+func TestEventRepositoryGetOneEventLaterThanTime(t *testing.T) {
+	timeNow := time.Now()
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+
+	_ = repo.Insert(event1)
+	events, err := repo.GetLaterThanTime(timeNow)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(events))
+	assert.Equal(t, event1.GetID(), events[0].GetID())
+	assert.Equal(t, event1.GetPayload(), events[0].GetPayload())
+	assert.Equal(t, event1.GetCreateTime(), events[0].GetCreateTime())
+}
+
+// Test Case getting several events later than time t from the repository
+func TestEventRepositoryGetSeveralEventsLaterThanTime(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+	timeNow := time.Now()
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 3")
+
+	_ = repo.Insert(event1, event2, event3)
+	events, err := repo.GetLaterThanTime(timeNow)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(events))
+	assert.Equal(t, event2.GetID(), events[0].GetID())
+	assert.Equal(t, event2.GetPayload(), events[0].GetPayload())
+	assert.Equal(t, event2.GetCreateTime(), events[0].GetCreateTime())
+	assert.Equal(t, event3.GetID(), events[1].GetID())
+	assert.Equal(t, event3.GetPayload(), events[1].GetPayload())
+	assert.Equal(t, event3.GetCreateTime(), events[1].GetCreateTime())
+}
+
+// Test Case getting all events later than time t from the repository
+func TestEventRepositoryGetAllEventsLaterThanTime(t *testing.T) {
+	repo := NewEventRepository()
+	timeNow := time.Now()
+	event1 := model.NewEvent("event 1")
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 3")
+
+	_ = repo.Insert(event1, event2, event3)
+	events, err := repo.GetLaterThanTime(timeNow)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(events))
+	assert.Equal(t, event1.GetID(), events[0].GetID())
+	assert.Equal(t, event1.GetPayload(), events[0].GetPayload())
+	assert.Equal(t, event1.GetCreateTime(), events[0].GetCreateTime())
+	assert.Equal(t, event2.GetID(), events[1].GetID())
+	assert.Equal(t, event2.GetPayload(), events[1].GetPayload())
+	assert.Equal(t, event2.GetCreateTime(), events[1].GetCreateTime())
+	assert.Equal(t, event3.GetID(), events[2].GetID())
+	assert.Equal(t, event3.GetPayload(), events[2].GetPayload())
+	assert.Equal(t, event3.GetCreateTime(), events[2].GetCreateTime())
+}
+
+// Test Case getting events later than time t from the empty repository
+func TestEventRepositoryGetEventsLaterThanTimeFromEmptyRepository(t *testing.T) {
+	repo := NewEventRepository()
+
+	events, err := repo.GetLaterThanTime(time.Now())
+	assert.Error(t, err)
+	assert.Empty(t, events)
+	assert.Empty(t, repo.events)
+}
+
+// Test Case getting events later than time t from repository which consists all events were been before
+func TestEventRepositoryGetEventsLaterThanTimeFromTheBeforeEvents(t *testing.T) {
+	repo := NewEventRepository()
+	event1 := model.NewEvent("event 1")
+	event2 := model.NewEvent("event 2")
+	event3 := model.NewEvent("event 3")
+	timeNow := time.Now()
+
+	_ = repo.Insert(event1, event2, event3)
+	events, err := repo.GetLaterThanTime(timeNow)
 	assert.Error(t, err)
 	assert.Empty(t, events)
 }
