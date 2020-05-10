@@ -2,7 +2,6 @@ package calendar
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/teploff/otus/calendar/domain/entity"
 	"github.com/teploff/otus/calendar/domain/service"
@@ -60,8 +59,6 @@ func makeUpdateEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 func makeDeleteEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DeleteEventRequest)
-
-		fmt.Println("Get: ", req)
 
 		if err = svc.DeleteEvent(ctx, req.EventID, req.UserID); err != nil {
 			return nil, err
