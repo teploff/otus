@@ -85,7 +85,7 @@ func makeGetWeeklyEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DateRequest)
 
-		events, err := svc.GetDailyEvent(ctx, req.UserID, req.Date)
+		events, err := svc.GetWeeklyEvent(ctx, req.UserID, req.Date)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +98,7 @@ func makeGetMonthlyEventEndpoint(svc service.CalendarService) endpoint.Endpoint 
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DateRequest)
 
-		events, err := svc.GetDailyEvent(ctx, req.UserID, req.Date)
+		events, err := svc.GetMonthlyEvent(ctx, req.UserID, req.Date)
 		if err != nil {
 			return nil, err
 		}
