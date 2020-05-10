@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package pb;
+
+service Calendar {
+    rpc CreateEvent (CreateRequest) returns (EmptyResponse) {
+    }
+    rpc UpdateEvent (UpdateEventRequest) returns (EmptyResponse) {
+    }
+    rpc DeleteEvent (DeleteEventRequest) returns (EmptyResponse) {
+    }
+    rpc GetDailyEvent (DateRequest) returns (EmptyResponse) {
+    }
+    rpc GetWeeklyEvent (DateRequest) returns (EmptyResponse) {
+    }
+    rpc GetMonthlyEvent (DateRequest) returns (EmptyResponse) {
+    }
+}
+
+message Event {
+    string short_description = 1;
+    int64 date = 2;
+    int64 duration = 3;
+    string full_description = 4;
+    int64 remind_before = 5;
+}
+
+message CreateRequest {
+    string user_id = 1;
+    Event event = 2;
+}
+
+message UpdateEventRequest {
+    string event_id = 1;
+    Event event = 2;
+}
+
+message DeleteEventRequest {
+    string event_id = 1;
+}
+
+message DateRequest {
+    int64 date = 1;
+}
+
+message EmptyResponse {}

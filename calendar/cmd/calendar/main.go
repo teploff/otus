@@ -1,55 +1,55 @@
 package main
 
 import (
-	"context"
+	"errors"
 	"flag"
-	"github.com/otus/calendar/configs"
-	"github.com/otus/calendar/infrastrucure/logger"
-	"github.com/otus/calendar/infrastrucure/server"
+	"github.com/teploff/otus/calendar/config"
+	"github.com/teploff/otus/calendar/endpoint/calendar"
+	"github.com/teploff/otus/calendar/infrastructure/logger"
+	"github.com/teploff/otus/calendar/internal/implementation/service"
+	kitgrpc "github.com/teploff/otus/calendar/transport/grpc"
 	"go.uber.org/zap"
-	"net/http"
+	"go.uber.org/zap/zapcore"
+	"google.golang.org/grpc"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 var (
-	pathConfiguration = flag.String("config", "./init/config_dev.yaml", "config file path")
+	configFile = flag.String("config", "./init/config_dev.yaml", "configuration file path")
+	dev        = flag.Bool("dev", false, "dev mode")
 )
 
 func main() {
 	flag.Parse()
 
-	cfg, err := configs.LoadConfiguration(*pathConfiguration)
+	cfg, err := config.LoadFromFile(*configFile)
 	if err != nil {
 		panic(err)
 	}
 
-	logger.InitZapLogger(cfg.Logger)
+	zapLogger := logger.New(*dev, &cfg.Logger)
 
-	srv := server.NewHTTPServer(cfg.Server)
+	gRPCListener, err := net.Listen("tcp", cfg.GRPCServer.Addr)
+	if err != nil {
+		zapLogger.Fatal("gRPC listener", zap.Error(err))
+	}
 
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	calendarSvc := service.NewCalendarService()
+
+	gRPCServer := kitgrpc.NewGRPCServer(calendar.MakeCalendarEndpoints(calendarSvc),
+		logger.NewZapSugarLogger(zapLogger, zapcore.ErrorLevel))
 
 	go func() {
-		if err = srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			zap.L().Fatal(err.Error())
+		if err = gRPCServer.Serve(gRPCListener); !errors.Is(err, grpc.ErrServerStopped) && err != nil {
+			zapLogger.Fatal("gRPC serve error", zap.Error(err))
 		}
 	}()
 
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-done
-
-	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-	defer func() {
-		// extra handling here
-		cancel()
-	}()
-
-	if err = srv.Shutdown(ctx); err != nil {
-		zap.L().Fatal(err.Error())
-	}
-
-	zap.L().Info("Http server is gracefully shutdown")
+	gRPCServer.GracefulStop()
 }
