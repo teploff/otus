@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"time"
 )
 
+// TelnetClient instance of tcp-client as telnet
 type TelnetClient struct {
 	conn          net.Conn
 	stdinScanner  *bufio.Scanner
@@ -17,9 +19,11 @@ type TelnetClient struct {
 	stdinCh       chan string
 }
 
-func NewTelnetClient(addr string, timeOut time.Duration) (*TelnetClient, error) {
+// NewTelnetClient getting instance of telnet
+func NewTelnetClient(addr string, timeOut time.Duration, reader io.Reader) (*TelnetClient, error) {
 	dialer := &net.Dialer{}
-	ctx, _ := context.WithTimeout(context.Background(), timeOut)
+	ctx, cancel := context.WithTimeout(context.Background(), timeOut)
+	defer cancel()
 
 	conn, err := dialer.DialContext(ctx, "tcp", addr)
 	if err != nil {
@@ -28,13 +32,14 @@ func NewTelnetClient(addr string, timeOut time.Duration) (*TelnetClient, error) 
 
 	return &TelnetClient{
 		conn:          conn,
-		stdinScanner:  bufio.NewScanner(os.Stdin),
+		stdinScanner:  bufio.NewScanner(reader),
 		serverScanner: bufio.NewScanner(conn),
 		serverCh:      make(chan string, 1),
 		stdinCh:       make(chan string, 1),
 	}, nil
 }
 
+// scanStdin scans IOF of io.Reader of STDIN
 func (t *TelnetClient) scanStdin() {
 	for {
 		if !t.stdinScanner.Scan() {
@@ -49,10 +54,11 @@ func (t *TelnetClient) scanStdin() {
 	}
 }
 
+// scanStdin scans IOF of io.Reader of tcp-server
 func (t *TelnetClient) scanTCPServer() {
 	for {
 		if !t.serverScanner.Scan() {
-			t.serverCh <- "Bye!\n"
+			t.serverCh <- "Server close connection!\nBye!\n"
 			return
 		}
 		if _, err := os.Stdout.WriteString(t.serverScanner.Text() + "\n"); err != nil {
@@ -61,6 +67,7 @@ func (t *TelnetClient) scanTCPServer() {
 	}
 }
 
+// Run launches telnet client
 func (t *TelnetClient) Run() error {
 	defer t.conn.Close()
 	defer os.Stdin.Close()
@@ -73,9 +80,11 @@ func (t *TelnetClient) Run() error {
 		select {
 		case msg := <-t.serverCh:
 			_, err := os.Stdout.WriteString(msg)
+
 			return err
 		case msg := <-t.stdinCh:
 			_, err := os.Stdout.WriteString(msg)
+
 			return err
 		default:
 			time.Sleep(10 * time.Millisecond)
