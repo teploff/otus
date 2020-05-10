@@ -25,7 +25,7 @@ func (e eventRepository) InsertEvent(ctx context.Context, event entity.Event) er
 	INSERT
 		INTO public."Event"(short_description, date, duration, full_description, remind_before, user_id)
 	VALUES
-		($1, $2, $3, $4, $5, $6, $7)`, event.ShortDescription, event.Date, event.Duration, event.FullDescription,
+		($1, $2, $3, $4, $5, $6)`, event.ShortDescription, event.Date, event.Duration, event.FullDescription,
 		event.RemindBefore, event.UserID)
 	if err != nil {
 		return err
