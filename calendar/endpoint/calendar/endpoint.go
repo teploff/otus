@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/teploff/otus/calendar/domain/entity"
 	"github.com/teploff/otus/calendar/domain/service"
 )
 
@@ -21,9 +22,14 @@ func makeCreateEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(CreateEventRequest)
 
-		fmt.Println("Get: ", req)
-
-		if err = svc.CreateEvent(); err != nil {
+		if err = svc.CreateEvent(ctx, entity.Event{
+			ShortDescription: req.ShortDescription,
+			Date:             req.Date,
+			Duration:         req.Duration,
+			FullDescription:  req.FullDescription,
+			RemindBefore:     req.RemindBefore,
+			UserID:           req.UserID,
+		}); err != nil {
 			return nil, err
 		}
 
@@ -35,9 +41,15 @@ func makeUpdateEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(UpdateEventRequest)
 
-		fmt.Println("Get: ", req)
-
-		if err = svc.UpdateEvent(); err != nil {
+		if err = svc.UpdateEvent(ctx, entity.Event{
+			ID:               req.EventID,
+			ShortDescription: req.ShortDescription,
+			Date:             req.Date,
+			Duration:         req.Duration,
+			FullDescription:  req.FullDescription,
+			RemindBefore:     req.RemindBefore,
+			UserID:           req.UserID,
+		}); err != nil {
 			return nil, err
 		}
 
@@ -51,7 +63,7 @@ func makeDeleteEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 
 		fmt.Println("Get: ", req)
 
-		if err = svc.DeleteEvent(); err != nil {
+		if err = svc.DeleteEvent(ctx, req.EventID, req.UserID); err != nil {
 			return nil, err
 		}
 
@@ -63,13 +75,12 @@ func makeGetDailyEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DateRequest)
 
-		fmt.Println("Get: ", req)
-
-		if err = svc.GetDailyEvent(); err != nil {
+		events, err := svc.GetDailyEvent(ctx, req.UserID, req.Date)
+		if err != nil {
 			return nil, err
 		}
 
-		return EmptyResponse{}, nil
+		return GetEventResponse{Events: events}, nil
 	}
 }
 
@@ -77,13 +88,12 @@ func makeGetWeeklyEventEndpoint(svc service.CalendarService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DateRequest)
 
-		fmt.Println("Get: ", req)
-
-		if err = svc.GetWeeklyEvent(); err != nil {
+		events, err := svc.GetDailyEvent(ctx, req.UserID, req.Date)
+		if err != nil {
 			return nil, err
 		}
 
-		return EmptyResponse{}, nil
+		return GetEventResponse{Events: events}, nil
 	}
 }
 
@@ -91,17 +101,16 @@ func makeGetMonthlyEventEndpoint(svc service.CalendarService) endpoint.Endpoint 
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(DateRequest)
 
-		fmt.Println("Get: ", req)
-
-		if err = svc.GetMonthlyEvent(); err != nil {
+		events, err := svc.GetDailyEvent(ctx, req.UserID, req.Date)
+		if err != nil {
 			return nil, err
 		}
 
-		return EmptyResponse{}, nil
+		return GetEventResponse{Events: events}, nil
 	}
 }
 
-// MakeCalendarEndpoints provides endpoints for admin-panel.
+// MakeCalendarEndpoints provides endpoints for calendar service.
 func MakeCalendarEndpoints(svc service.CalendarService) Endpoints {
 	return Endpoints{
 		CreateEvent:     makeCreateEventEndpoint(svc),

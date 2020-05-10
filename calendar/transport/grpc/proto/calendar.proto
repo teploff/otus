@@ -9,11 +9,11 @@ service Calendar {
     }
     rpc DeleteEvent (DeleteEventRequest) returns (EmptyResponse) {
     }
-    rpc GetDailyEvent (DateRequest) returns (EmptyResponse) {
+    rpc GetDailyEvent (DateRequest) returns (GetEventResponse) {
     }
-    rpc GetWeeklyEvent (DateRequest) returns (EmptyResponse) {
+    rpc GetWeeklyEvent (DateRequest) returns (GetEventResponse) {
     }
-    rpc GetMonthlyEvent (DateRequest) returns (EmptyResponse) {
+    rpc GetMonthlyEvent (DateRequest) returns (GetEventResponse) {
     }
 }
 
@@ -31,16 +31,32 @@ message CreateRequest {
 }
 
 message UpdateEventRequest {
-    string event_id = 1;
-    Event event = 2;
+    string user_id = 1;
+    string event_id = 2;
+    Event event = 3;
 }
 
 message DeleteEventRequest {
-    string event_id = 1;
+    string user_id = 1;
+    string event_id = 2;
 }
 
 message DateRequest {
-    int64 date = 1;
+    string user_id = 1;
+    int64 date = 2;
 }
 
 message EmptyResponse {}
+
+message DbEvent {
+    string id = 1;
+    string short_description = 2;
+    int64 date = 3;
+    int64 duration = 4;
+    string full_description = 5;
+    int64 remind_before = 6;
+}
+
+message GetEventResponse {
+    repeated DbEvent events = 1;
+}

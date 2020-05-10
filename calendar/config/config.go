@@ -8,12 +8,24 @@ import (
 // Config holds all configs.
 type Config struct {
 	GRPCServer GRPCConfig   `yaml:"gRPC_server"`
+	Db         DbConfig     `yaml:"db"`
 	Logger     LoggerConfig `yaml:"logger"`
 }
 
 // GRPCConfig configuration of grpc-instance service.
 type GRPCConfig struct {
 	Addr string `yaml:"addr"`
+}
+
+// DbConfig configuration of postgres database.
+type DbConfig struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Name     string `yaml:"name"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	SSLMode  string `yaml:"ssl_mode"`
+	MaxConn  int    `yaml:"max_conn"`
 }
 
 // LoggerConfig logger configuration.

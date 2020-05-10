@@ -1,10 +1,16 @@
 package service
 
+import (
+	"context"
+	"github.com/teploff/otus/calendar/domain/entity"
+	"time"
+)
+
 type CalendarService interface {
-	CreateEvent() error
-	UpdateEvent() error
-	DeleteEvent() error
-	GetDailyEvent() error
-	GetWeeklyEvent() error
-	GetMonthlyEvent() error
+	CreateEvent(ctx context.Context, event entity.Event) error
+	UpdateEvent(ctx context.Context, event entity.Event) error
+	DeleteEvent(ctx context.Context, eventID, userID string) error
+	GetDailyEvent(ctx context.Context, userID string, date time.Time) ([]entity.Event, error)
+	GetWeeklyEvent(ctx context.Context, userID string, date time.Time) ([]entity.Event, error)
+	GetMonthlyEvent(ctx context.Context, userID string, date time.Time) ([]entity.Event, error)
 }

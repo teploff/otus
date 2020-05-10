@@ -51,31 +51,67 @@ func (s server) DeleteEvent(ctx context.Context, request *pb.DeleteEventRequest)
 	return response.(*pb.EmptyResponse), nil
 }
 
-func (s server) GetDailyEvent(ctx context.Context, request *pb.DateRequest) (*pb.EmptyResponse, error) {
+func (s server) GetDailyEvent(ctx context.Context, request *pb.DateRequest) (*pb.GetEventResponse, error) {
 	_, response, err := s.getDailyEvent.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return response.(*pb.EmptyResponse), nil
+	events := response.(calendar.GetEventResponse).Events
+	pbEvents := make([]*pb.DbEvent, 0, len(events))
+	for _, event := range events {
+		pbEvents = append(pbEvents, &pb.DbEvent{
+			Id:               event.ID,
+			ShortDescription: event.ShortDescription,
+			Date:             event.Date.Unix(),
+			Duration:         event.Duration,
+			FullDescription:  event.FullDescription,
+			RemindBefore:     event.RemindBefore,
+		})
+	}
+	return &pb.GetEventResponse{Events: pbEvents}, nil
 }
 
-func (s server) GetWeeklyEvent(ctx context.Context, request *pb.DateRequest) (*pb.EmptyResponse, error) {
+func (s server) GetWeeklyEvent(ctx context.Context, request *pb.DateRequest) (*pb.GetEventResponse, error) {
 	_, response, err := s.getWeeklyEvent.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return response.(*pb.EmptyResponse), nil
+	events := response.(calendar.GetEventResponse).Events
+	pbEvents := make([]*pb.DbEvent, 0, len(events))
+	for _, event := range events {
+		pbEvents = append(pbEvents, &pb.DbEvent{
+			Id:               event.ID,
+			ShortDescription: event.ShortDescription,
+			Date:             event.Date.Unix(),
+			Duration:         event.Duration,
+			FullDescription:  event.FullDescription,
+			RemindBefore:     event.RemindBefore,
+		})
+	}
+	return &pb.GetEventResponse{Events: pbEvents}, nil
 }
 
-func (s server) GetMonthlyEvent(ctx context.Context, request *pb.DateRequest) (*pb.EmptyResponse, error) {
+func (s server) GetMonthlyEvent(ctx context.Context, request *pb.DateRequest) (*pb.GetEventResponse, error) {
 	_, response, err := s.getMonthlyEvent.ServeGRPC(ctx, request)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return response.(*pb.EmptyResponse), nil
+	events := response.(calendar.GetEventResponse).Events
+	pbEvents := make([]*pb.DbEvent, 0, len(events))
+	for _, event := range events {
+		pbEvents = append(pbEvents, &pb.DbEvent{
+			Id:               event.ID,
+			ShortDescription: event.ShortDescription,
+			Date:             event.Date.Unix(),
+			Duration:         event.Duration,
+			FullDescription:  event.FullDescription,
+			RemindBefore:     event.RemindBefore,
+		})
+	}
+	return &pb.GetEventResponse{Events: pbEvents}, nil
 }
 
 // NewGRPCServer instance of gRPC server.
@@ -106,19 +142,19 @@ func NewGRPCServer(endpoints calendar.Endpoints, errLogger log.Logger) *grpc.Ser
 		getDailyEvent: newRecoveryGRPCHandler(kitgrpc.NewServer(
 			endpoints.GetDailyEvent,
 			decodeDateRequest,
-			encodeEmptyResponse,
+			encodeGetEventResponse,
 			options...,
 		), errLogger),
 		getWeeklyEvent: newRecoveryGRPCHandler(kitgrpc.NewServer(
 			endpoints.GetWeeklyEvent,
 			decodeDateRequest,
-			encodeEmptyResponse,
+			encodeGetEventResponse,
 			options...,
 		), errLogger),
 		getMonthlyEvent: newRecoveryGRPCHandler(kitgrpc.NewServer(
 			endpoints.GetMonthlyEvent,
 			decodeDateRequest,
-			encodeEmptyResponse,
+			encodeGetEventResponse,
 			options...,
 		), errLogger),
 	}
@@ -137,9 +173,9 @@ func decodeCreateEventRequest(_ context.Context, grpcReq interface{}) (interface
 		Event: calendar.Event{
 			ShortDescription: request.Event.ShortDescription,
 			Date:             time.Unix(request.Event.Date, 0),
-			Duration:         time.Minute * time.Duration(request.Event.Duration),
+			Duration:         request.Event.Duration,
 			FullDescription:  request.Event.FullDescription,
-			RemindBefore:     time.Minute * time.Duration(request.Event.RemindBefore),
+			RemindBefore:     request.Event.RemindBefore,
 		},
 	}, nil
 }
@@ -148,13 +184,14 @@ func decodeUpdateEventRequest(_ context.Context, grpcReq interface{}) (interface
 	request := grpcReq.(*pb.UpdateEventRequest)
 
 	return calendar.UpdateEventRequest{
+		UserID:  request.UserId,
 		EventID: request.EventId,
 		Event: calendar.Event{
 			ShortDescription: request.Event.ShortDescription,
 			Date:             time.Unix(request.Event.Date, 0),
-			Duration:         time.Minute * time.Duration(request.Event.Duration),
+			Duration:         request.Event.Duration,
 			FullDescription:  request.Event.FullDescription,
-			RemindBefore:     time.Minute * time.Duration(request.Event.RemindBefore),
+			RemindBefore:     request.Event.RemindBefore,
 		},
 	}, nil
 }
@@ -162,17 +199,27 @@ func decodeUpdateEventRequest(_ context.Context, grpcReq interface{}) (interface
 func decodeDeleteEventRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	request := grpcReq.(*pb.DeleteEventRequest)
 
-	return calendar.DeleteEventRequest{EventID: request.EventId}, nil
+	return calendar.DeleteEventRequest{
+		UserID:  request.UserId,
+		EventID: request.EventId,
+	}, nil
 }
 
 func decodeDateRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	request := grpcReq.(*pb.DateRequest)
 
-	return calendar.DateRequest{Date: time.Unix(request.Date, 0)}, nil
+	return calendar.DateRequest{
+		UserID: request.UserId,
+		Date:   time.Unix(request.Date, 0),
+	}, nil
 }
 
-func encodeEmptyResponse(_ context.Context, grpcResp interface{}) (interface{}, error) {
+func encodeEmptyResponse(_ context.Context, _ interface{}) (interface{}, error) {
 	return &pb.EmptyResponse{}, nil
+}
+
+func encodeGetEventResponse(_ context.Context, grpcResp interface{}) (interface{}, error) {
+	return grpcResp.(*pb.GetEventResponse), nil
 }
 
 //recoveryGRPCHandler wrap gRPC server, recover them if panic was fired.
