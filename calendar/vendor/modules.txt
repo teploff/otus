@@ -6,6 +6,8 @@ github.com/go-kit/kit/transport
 github.com/go-kit/kit/transport/grpc
 # github.com/go-logfmt/logfmt v0.5.0
 github.com/go-logfmt/logfmt
+# github.com/go-sql-driver/mysql v1.5.0
+## explicit
 # github.com/golang/protobuf v1.4.1
 ## explicit
 github.com/golang/protobuf/proto
@@ -13,13 +15,32 @@ github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
+# github.com/jackc/pgx v3.6.2+incompatible
+## explicit
+# github.com/jackc/pgx/v4 v4.6.0
+## explicit
+# github.com/lib/pq v1.5.2
+## explicit
+github.com/lib/pq
+github.com/lib/pq/oid
+github.com/lib/pq/scram
+# github.com/mattn/go-sqlite3 v2.0.3+incompatible
+## explicit
 # github.com/natefinch/lumberjack v2.0.0+incompatible
 ## explicit
 github.com/natefinch/lumberjack
+# github.com/pkg/errors v0.9.1
+## explicit
+github.com/pkg/errors
+# github.com/pressly/goose v2.6.0+incompatible
+## explicit
+github.com/pressly/goose
 # github.com/satori/go.uuid v1.2.0
 ## explicit
 github.com/satori/go.uuid
 # github.com/stretchr/testify v1.5.1
+## explicit
+# github.com/ziutek/mymysql v1.5.4
 ## explicit
 # go.uber.org/atomic v1.6.0
 go.uber.org/atomic
@@ -47,6 +68,8 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# google.golang.org/appengine v1.6.6
+## explicit
 # google.golang.org/genproto v0.0.0-20200507105951-43844f6eee31
 ## explicit
 google.golang.org/genproto/googleapis/rpc/status
