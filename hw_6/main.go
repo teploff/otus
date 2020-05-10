@@ -1,42 +1,27 @@
 package main
 
 import (
-	"fmt"
-	uuid "github.com/satori/go.uuid"
+	"flag"
 	"github.com/teploff/otus/hw_6/carbon"
-	"github.com/teploff/otus/hw_6/utils"
 	"log"
-	"os"
+)
+
+var (
+	srsFilePath  = flag.String("src", "full/source/file/path", "full path to src file")
+	destFilePath = flag.String("dest", "full/dest/file/path", "full path to dest file")
+	offset       = flag.Int64("offset", 0, "offset count bytes from source file")
+	limit        = flag.Int64("limit", 0, "count of bytes which should copied from source file")
 )
 
 func main() {
-	workDirectoryPath, err := os.Getwd()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	flag.Parse()
 
-	srcUUID := uuid.NewV4()
-	destUUID := uuid.NewV4()
-	srcFilePath := fmt.Sprintf(workDirectoryPath+"/%s", srcUUID)
-	destFilePath := fmt.Sprintf(workDirectoryPath+"/%s", destUUID)
-	srcPayload := make([]byte, utils.GIGABYTE*5) // заполнен нулями
-
-	if err := utils.WriteFile(srcFilePath, srcPayload); err != nil {
-		log.Fatal(err)
-	}
-	c, err := carbon.NewCarbon(srcFilePath, destFilePath, 0, 0)
+	c, err := carbon.NewCarbon(*srsFilePath, *destFilePath, *offset, *limit)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	if err = c.Copy(); err != nil {
-		log.Fatalln(err)
-	}
-
-	if err = os.Remove(srcFilePath); err != nil {
-		log.Fatalln(err)
-	}
-	if err = os.Remove(destFilePath); err != nil {
 		log.Fatalln(err)
 	}
 }

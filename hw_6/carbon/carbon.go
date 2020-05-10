@@ -2,6 +2,7 @@ package carbon
 
 import (
 	"errors"
+	"fmt"
 	pb2 "github.com/cheggaaa/pb/v3"
 	"github.com/teploff/otus/hw_6/utils"
 	"io"
@@ -97,6 +98,7 @@ func (c *Carbon) Copy() error {
 		offset += int64(read)
 		if err == io.EOF {
 			if _, err = c.destFile.Write(buffer[:read]); err != nil {
+				fmt.Println("i'm here")
 				return err
 			}
 			c.pb.Add(read)
@@ -107,6 +109,7 @@ func (c *Carbon) Copy() error {
 		}
 
 		if _, err = c.destFile.Write(buffer[:read]); err != nil {
+			fmt.Println("i'm here tooo")
 			return err
 		}
 		c.pb.Add(read)
@@ -132,12 +135,9 @@ func filesInit(srcFilePath, destFilePath string) (src, dest *os.File, err error)
 		return nil, nil, err
 	}
 
-	dest, err = os.Open(destFilePath)
+	dest, err = os.OpenFile(destFilePath, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 	if err != nil {
-		dest, err = os.Create(destFilePath)
-		if err != nil {
-			return nil, nil, err
-		}
+		return nil, nil, err
 	}
 
 	return src, dest, nil
