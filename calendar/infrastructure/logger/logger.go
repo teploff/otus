@@ -15,8 +15,10 @@ const (
 	maxAge     = 3
 )
 
+// Option instance of zap.logger option
 type Option func(logger *zap.Logger) *zap.Logger
 
+// New create zap.logger instance
 func New(dev bool, cfg *config.LoggerConfig, opts ...Option) *zap.Logger {
 	var options []zap.Option
 

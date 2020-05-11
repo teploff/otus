@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/teploff/otus/calendar/domain/entity"
 	"github.com/teploff/otus/calendar/domain/repository"
+	"github.com/teploff/otus/calendar/domain/service"
 	"time"
 )
 
@@ -11,7 +12,8 @@ type calendarService struct {
 	repository repository.EventRepository
 }
 
-func NewCalendarService(repository repository.EventRepository) *calendarService {
+// NewCalendarService implements domain logic of calendar service
+func NewCalendarService(repository repository.EventRepository) service.CalendarService {
 	return &calendarService{repository: repository}
 }
 

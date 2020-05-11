@@ -15,20 +15,24 @@ import (
 	"net"
 )
 
+// AppOption via application
 type AppOption func(*App)
 
+// WithLogger adding logger option
 func WithLogger(l *zap.Logger) AppOption {
 	return func(a *App) {
 		a.logger = l
 	}
 }
 
+// WithConnPool adding psql pool connections
 func WithConnPool(pool *pgxpool.Pool) AppOption {
 	return func(a *App) {
 		a.poolConn = pool
 	}
 }
 
+// App is application to encapsulate login to launch in main
 type App struct {
 	cfg             config.Config
 	poolConn        *pgxpool.Pool
@@ -36,6 +40,7 @@ type App struct {
 	stopCommandChan chan struct{}
 }
 
+// NewApp returns instance of app
 func NewApp(cfg config.Config, opts ...AppOption) *App {
 	app := &App{
 		cfg:             cfg,
@@ -50,6 +55,7 @@ func NewApp(cfg config.Config, opts ...AppOption) *App {
 	return app
 }
 
+// Run lunch application
 func (a *App) Run() {
 	gRPCListener, err := net.Listen("tcp", a.cfg.GRPCServer.Addr)
 	if err != nil {
@@ -71,6 +77,7 @@ func (a *App) Run() {
 	gRPCServer.GracefulStop()
 }
 
+// Stop gracefully shutting down application
 func (a *App) Stop() {
 	a.stopCommandChan <- struct{}{}
 }

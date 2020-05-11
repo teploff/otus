@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// CalendarService encapsulate calendar domain logic
 type CalendarService interface {
 	CreateEvent(ctx context.Context, event entity.Event) error
 	UpdateEvent(ctx context.Context, event entity.Event) error

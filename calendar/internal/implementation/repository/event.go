@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/teploff/otus/calendar/domain/entity"
+	"github.com/teploff/otus/calendar/domain/repository"
 	"time"
 )
 
@@ -11,7 +12,8 @@ type eventRepository struct {
 	pgxPool *pgxpool.Pool
 }
 
-func NewEventRepository(pgxPool *pgxpool.Pool) *eventRepository {
+// NewEventRepository returns repository of events via PostgreSQL database
+func NewEventRepository(pgxPool *pgxpool.Pool) repository.EventRepository {
 	return &eventRepository{pgxPool: pgxPool}
 }
 
