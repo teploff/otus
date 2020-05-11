@@ -1,0 +1,16 @@
+gRPC_server:
+  addr: "0.0.0.0:8087"
+
+db:
+  host: "localhost"
+  port: 5438
+  name: "otus"
+  username: "postgres"
+  password: "password"
+  ssl_mode: "disable"
+  max_conn: 10
+
+logger:
+  file_name: "./calendar.log"
+  max_size: 50
+  level: "info"
