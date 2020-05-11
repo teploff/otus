@@ -3,6 +3,20 @@ version: '3.7'
 # docker-compose up -d --build && docker image prune -f
 
 services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: otus
+    container_name: postgres_otus
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5438:5432"
+    restart: always
+    networks:
+      - stage_network
   calendar:
     build:
       context: ../../
@@ -14,21 +28,6 @@ services:
     restart: always
     depends_on:
       - postgres
-    networks:
-      - stage_network
-
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: otus
-    container_name: postgres
-    volumes:
-      - postgres:/var/lib/postgresql/data
-    ports:
-      - "5438:5432"
-    restart: always
     networks:
       - stage_network
 

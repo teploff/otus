@@ -2,8 +2,8 @@ gRPC_server:
   addr: "0.0.0.0:8087"
 
 db:
-  host: postgres
-  port: 5438
+  host: postgres_otus
+  port: 5432
   name: "otus"
   username: "postgres"
   password: "password"

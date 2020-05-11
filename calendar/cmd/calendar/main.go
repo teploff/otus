@@ -16,7 +16,7 @@ import (
 
 var (
 	configFile = flag.String("config", "./init/config_dev.yaml", "configuration file path")
-	dev        = flag.Bool("dev", false, "dev mode")
+	dev        = flag.Bool("dev", true, "dev mode")
 )
 
 func main() {
