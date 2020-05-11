@@ -19,4 +19,7 @@ integration_test:
 	&& docker rm -f postgres_test
 
 shutdown:
-	cd deployments/stage && docker-compose down && docker system prune --force --volumes && cd ../../migrations && rm goose
+	cd deployments/stage && \
+	docker-compose down && \
+	docker system prune --force --volumes && \
+	rm  ../../migrations/goose
