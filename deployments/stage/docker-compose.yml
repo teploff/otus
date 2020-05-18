@@ -1,0 +1,69 @@
+version: '3.7'
+
+# sudo docker-compose up -d --build
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: otus
+    container_name: postgres_otus
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - otus_network
+
+  nats-streaming:
+    image: nats-streaming
+    container_name: nats_streaming_otus
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    restart: always
+    command:
+      - "--cluster_id=otus_cluster"
+      - "--store=MEMORY"
+      - "--http_port=8222"
+      - "--max_age=1h"
+      - "--max_inactivity=1h"
+    networks:
+      - otus_network
+
+  calendar:
+    build:
+      context: ../../calendar
+      dockerfile: deployments/stage/calendar/Dockerfile
+    image: calendar:latest
+    container_name: calendar
+    ports:
+      - "8087:8087"
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - otus_network
+
+  scheduler:
+    build:
+      context: ../../scheduler
+      dockerfile: deployments/stage/scheduler/Dockerfile
+    image: scheduler:latest
+    container_name: scheduler
+    restart: always
+    depends_on:
+      - postgres
+      - nats-streaming
+    networks:
+      - otus_network
+
+networks:
+  otus_network:
+    driver: bridge
+
+volumes:
+  postgres:

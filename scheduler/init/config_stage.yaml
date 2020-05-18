@@ -1,0 +1,21 @@
+scheduler:
+  interval: 1m
+
+db:
+  host: "postgres_otus"
+  port: 5432
+  name: "otus"
+  username: "postgres"
+  password: "password"
+  ssl_mode: "disable"
+  max_conn: 10
+
+stan:
+  cluster_name: "otus_cluster"
+  client_id: "otus_client"
+  addr: "nats_streaming_otus:4222"
+
+logger:
+  file_name: "./scheduler.log"
+  max_size: 50
+  level: "info"
