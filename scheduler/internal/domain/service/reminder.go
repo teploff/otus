@@ -2,7 +2,8 @@ package service
 
 import "context"
 
-type Reminder interface {
+// ReminderService provides reminder to db query
+type ReminderService interface {
 	Run(ctx context.Context)
 	Stop()
 }

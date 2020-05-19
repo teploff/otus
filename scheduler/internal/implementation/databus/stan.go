@@ -7,17 +7,19 @@ import (
 	"github.com/teploff/otus/scheduler/internal/domain/entity"
 )
 
+// stanDataBus implements DataBase interface to provide write to stan (nats-streaming)
 type stanDataBus struct {
 	conn stan.Conn
 }
 
+// NewStanDataBus gets databus instance
 func NewStanDataBus(stanConn stan.Conn) databus.DataBus {
 	return &stanDataBus{
 		conn: stanConn,
 	}
 }
 
-// PublishMeasurement provides transportation for measurement to stan
+// PublishNotification provides transportation for notification to stan
 func (s *stanDataBus) PublishNotification(event *entity.Event) error {
 	msg, err := gojay.MarshalJSONObject(NewEncodeNotification(event))
 	if err != nil {

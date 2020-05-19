@@ -49,12 +49,13 @@ func main() {
 
 	stanService := databus.NewStanDataBus(stanConn)
 
-	zapLogger.Info("interval = ", zap.Duration("key", cfg.Scheduler.Interval))
-	rem := service.NewTickerReminder(cfg.Scheduler.Interval, storage, stanService, zapLogger)
-	ctx := context.Background()
-	rem.Run(ctx)
+	reminderService := service.NewTickerReminder(cfg.Scheduler.Interval, storage, stanService, zapLogger)
+	ctx, cancel := context.WithCancel(context.Background())
+	reminderService.Run(ctx)
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-done
-	rem.Stop()
+
+	cancel()
+	reminderService.Stop()
 }

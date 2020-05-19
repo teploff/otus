@@ -9,7 +9,8 @@ CREATE TABLE public."Event"
     duration          BIGINT                   NOT NULL,
     full_description  TEXT                     NULL,
     remind_before     BIGINT                   NULL,
-    user_id           uuid                     NOT NULL
+    user_id           uuid                     NOT NULL,
+    is_received       BOOLEAN                           DEFAULT FALSE
 );
 
 CREATE INDEX user_idx ON public."Event" (user_id);

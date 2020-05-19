@@ -7,7 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
 	"github.com/teploff/otus/calendar/config"
-	"github.com/teploff/otus/calendar/pkg"
+	"github.com/teploff/otus/calendar/internal"
 	"github.com/teploff/otus/calendar/transport/grpc/pb"
 	"google.golang.org/grpc"
 	"testing"
@@ -17,7 +17,7 @@ type GRPCServerTS struct {
 	suite.Suite
 	connPool *pgxpool.Pool
 	addr     string
-	app      *pkg.App
+	app      *internal.App
 }
 
 func (g *GRPCServerTS) SetupSuite() {
@@ -34,8 +34,8 @@ func (g *GRPCServerTS) SetupSuite() {
 		panic(err)
 	}
 
-	g.app = pkg.NewApp(cfg,
-		pkg.WithConnPool(g.connPool),
+	g.app = internal.NewApp(cfg,
+		internal.WithConnPool(g.connPool),
 	)
 
 	go g.app.Run()

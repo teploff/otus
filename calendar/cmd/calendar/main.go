@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/teploff/otus/calendar/config"
 	"github.com/teploff/otus/calendar/infrastructure/logger"
-	"github.com/teploff/otus/calendar/pkg"
+	"github.com/teploff/otus/calendar/internal"
 	"go.uber.org/zap"
 	"os"
 	"os/signal"
@@ -36,9 +36,9 @@ func main() {
 	}
 	defer pool.Close()
 
-	app := pkg.NewApp(cfg,
-		pkg.WithLogger(zapLogger),
-		pkg.WithConnPool(pool),
+	app := internal.NewApp(cfg,
+		internal.WithLogger(zapLogger),
+		internal.WithConnPool(pool),
 	)
 
 	go app.Run()

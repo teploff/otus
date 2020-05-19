@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// tickerReminder implements ReminderService interface
 type tickerReminder struct {
 	tk         *time.Ticker
 	done       chan struct{}
@@ -17,7 +18,9 @@ type tickerReminder struct {
 	logger     *zap.Logger
 }
 
-func NewTickerReminder(duration time.Duration, eventRepository repository.EventRepository, dataBus databus.DataBus, logger *zap.Logger) service.Reminder {
+// NewTickerReminder gets ticker reminder instance
+func NewTickerReminder(duration time.Duration, eventRepository repository.EventRepository, dataBus databus.DataBus,
+	logger *zap.Logger) service.ReminderService {
 	return &tickerReminder{
 		tk:         time.NewTicker(duration),
 		done:       make(chan struct{}, 1),
@@ -27,6 +30,7 @@ func NewTickerReminder(duration time.Duration, eventRepository repository.EventR
 	}
 }
 
+// Run starts ticker reminder. Ticker ticks with duration interval
 func (t tickerReminder) Run(ctx context.Context) {
 	for {
 		select {
@@ -42,6 +46,12 @@ func (t tickerReminder) Run(ctx context.Context) {
 				}
 			}
 
+			if len(events) > 0 {
+				if err = t.repository.ConfirmEvents(ctx, events); err != nil {
+					t.logger.Error("on query to confirm events", zap.Error(err))
+				}
+			}
+
 			if err = t.repository.CleanExpiredEvents(ctx); err != nil {
 				t.logger.Error("on query to clean expired events", zap.Error(err))
 			}
@@ -53,6 +63,7 @@ func (t tickerReminder) Run(ctx context.Context) {
 	}
 }
 
+// Stop closing ticker reminder
 func (t tickerReminder) Stop() {
 	t.done <- struct{}{}
 }

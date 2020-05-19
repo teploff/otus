@@ -1,5 +1,5 @@
 gRPC_server:
-  addr: "0.0.0.0:8087"
+  addr: "0.0.0.0:8888"
 
 db:
   host: postgres_otus

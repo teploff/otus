@@ -40,7 +40,8 @@ func main() {
 
 	stanServer := kitstan.NewStan()
 	go func() {
-		err = stanServer.Serve(stanConn, notifier.MakeNotifierEndpoints(svc), logger.NewZapSugarLogger(zapLogger, zapcore.ErrorLevel))
+		err = stanServer.Serve(stanConn, notifier.MakeNotifierEndpoints(svc),
+			logger.NewZapSugarLogger(zapLogger, zapcore.ErrorLevel))
 		if err != nil {
 			zapLogger.Fatal("stan serve error", zap.Error(err))
 		}

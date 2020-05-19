@@ -58,7 +58,7 @@ func (s *Stan) Stop() {
 	}
 }
 
-// DecodeSendNotificationRequest decodes ProcessCalculation request.
+// DecodeSendNotificationRequest decodes SendNotification request.
 func DecodeSendNotificationRequest(_ context.Context, msg *stan.Msg) (interface{}, error) {
 	var request notifier.SendNotificationRequest
 
