@@ -41,7 +41,7 @@ services:
     image: calendar:latest
     container_name: calendar
     ports:
-      - "8087:8087"
+      - "8888:8888"
     restart: always
     depends_on:
       - postgres
