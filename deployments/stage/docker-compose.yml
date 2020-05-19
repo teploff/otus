@@ -61,6 +61,18 @@ services:
     networks:
       - otus_network
 
+  sender:
+    build:
+      context: ../../sender
+      dockerfile: deployments/stage/sender/Dockerfile
+    image: sender:latest
+    container_name: sender
+    restart: always
+    depends_on:
+      - nats-streaming
+    networks:
+      - otus_network
+
 networks:
   otus_network:
     driver: bridge

@@ -1,0 +1,9 @@
+stan:
+  cluster_name: "otus_cluster"
+  client_id: "otus_sender_client"
+  addr: "localhost:4222"
+
+logger:
+  file_name: "./sender.log"
+  max_size: 50
+  level: "info"
