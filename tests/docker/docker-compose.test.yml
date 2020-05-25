@@ -1,0 +1,63 @@
+version: '3.7'
+
+# docker-compose up -d --build && docker image prune -f
+
+networks:
+  test_network:
+    driver: bridge
+
+services:
+  postgres_test:
+    image: postgres:latest
+    container_name: postgres_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: otus
+    ports:
+      - "5432:5432"
+    networks:
+      - test_network
+
+  migrator_test:
+    build:
+      context: ../..
+      dockerfile: tests/docker/migrator/Dockerfile
+    depends_on:
+      - postgres_test
+    networks:
+      - test_network
+
+  nats_streaming_test:
+    image: nats-streaming
+    container_name: nats_streaming_test
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command:
+      - "--cluster_id=otus_cluster"
+      - "--store=MEMORY"
+      - "--http_port=8222"
+      - "--max_age=1h"
+      - "--max_inactivity=1h"
+    networks:
+      - test_network
+
+  calendar_integration_tests:
+    build:
+      context: ../..
+      dockerfile: tests/docker/calendar/Dockerfile
+    depends_on:
+      - postgres_test
+      - migrator_test
+      - nats_streaming_test
+    environment:
+      TEST_GRPC_ADDR: "0.0.0.0:8090"
+      TEST_DB_HOST: "postgres_test"
+      TEST_DB_PORT: 5432
+      TEST_DB_NAME: "otus"
+      TEST_DB_USER: "postgres"
+      TEST_DB_PASSWORD: "password"
+      TEST_DB_SSL_MODE: "disable"
+    networks:
+      - test_network

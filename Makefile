@@ -1,3 +1,5 @@
+.PHONY: run shutdown bdd
+
 run:
 	cd deployments/stage &&	\
 	docker-compose up -d --build && \
@@ -11,3 +13,14 @@ shutdown:
 	docker-compose down && \
 	docker system prune --force --volumes && \
 	rm  ../../calendar/migrations/goose
+
+bdd:
+	set -e ;\
+	cd tests/docker && docker-compose -f docker-compose.test.yml up --build -d ;\
+	test_status_code=0 ;\
+	sleep 3 ;\
+	docker-compose -f docker-compose.test.yml run migrator_test ./migrator --dir=/calendar/migrations --host=postgres_test --port=5432 --user=postgres --password=password --dbname=otus --sslmode=disable up ;\
+	docker-compose -f docker-compose.test.yml run calendar_integration_tests go test -tags integration ./... || test_status_code=$$? ;\
+	docker-compose -f docker-compose.test.yml down ;\
+	docker system prune --force --volumes ;\
+	exit $$test_status_code ;\

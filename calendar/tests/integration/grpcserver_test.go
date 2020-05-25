@@ -1,3 +1,5 @@
+//+build integration
+
 package integration
 
 import (
@@ -10,6 +12,8 @@ import (
 	"github.com/teploff/otus/calendar/internal"
 	"github.com/teploff/otus/calendar/transport/grpc/pb"
 	"google.golang.org/grpc"
+	"os"
+	"strconv"
 	"testing"
 )
 
@@ -21,10 +25,26 @@ type GRPCServerTS struct {
 }
 
 func (g *GRPCServerTS) SetupSuite() {
-	cfg, err := config.LoadFromFile("../../init/config_test.yaml")
-	if err != nil {
-		panic(err)
+	var err error
+
+	dbPort, err := strconv.Atoi(os.Getenv("TEST_DB_PORT"))
+	g.NoError(err)
+
+	cfg := config.Config{
+		GRPCServer: config.GRPCConfig{
+			Addr: os.Getenv("TEST_GRPC_ADDR"),
+		},
+		Db: config.DbConfig{
+			Host:     os.Getenv("TEST_DB_HOST"),
+			Port:     dbPort,
+			Name:     os.Getenv("TEST_DB_NAME"),
+			Username: os.Getenv("TEST_DB_USER"),
+			Password: os.Getenv("TEST_DB_PASSWORD"),
+			SSLMode:  os.Getenv("TEST_DB_SSL_MODE"),
+			MaxConn:  10,
+		},
 	}
+
 	g.addr = cfg.GRPCServer.Addr
 
 	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=%s pool_max_conns=%d",
