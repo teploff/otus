@@ -61,3 +61,24 @@ services:
       TEST_DB_SSL_MODE: "disable"
     networks:
       - test_network
+
+  scheduler_integration_tests:
+    build:
+      context: ../..
+      dockerfile: tests/docker/scheduler/Dockerfile
+    depends_on:
+      - postgres_test
+      - migrator_test
+      - nats_streaming_test
+    environment:
+      TEST_DB_HOST: "postgres_test"
+      TEST_DB_PORT: 5432
+      TEST_DB_NAME: "otus"
+      TEST_DB_USER: "postgres"
+      TEST_DB_PASSWORD: "password"
+      TEST_DB_SSL_MODE: "disable"
+      TEST_STAN_CLUSTER_NAME: "otus_cluster"
+      TEST_STAN_CLIENT_ID: "otus_client"
+      TEST_STAN_ADDR: "nats://nats_streaming_test:4222"
+    networks:
+      - test_network

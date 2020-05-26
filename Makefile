@@ -21,6 +21,7 @@ bdd:
 	sleep 3 ;\
 	docker-compose -f docker-compose.test.yml run migrator_test ./migrator --dir=/calendar/migrations --host=postgres_test --port=5432 --user=postgres --password=password --dbname=otus --sslmode=disable up ;\
 	docker-compose -f docker-compose.test.yml run calendar_integration_tests go test -tags integration ./... || test_status_code=$$? ;\
+	docker-compose -f docker-compose.test.yml run scheduler_integration_tests go test -tags integration ./... || test_status_code=$$? ;\
 	docker-compose -f docker-compose.test.yml down ;\
 	docker system prune --force --volumes ;\
 	exit $$test_status_code ;\
