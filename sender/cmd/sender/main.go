@@ -3,13 +3,10 @@ package main
 import (
 	"flag"
 	"github.com/nats-io/stan.go"
+	"github.com/teploff/otus/sender/internal/app"
 	"github.com/teploff/otus/sender/internal/config"
-	"github.com/teploff/otus/sender/internal/enpoints/notifier"
-	"github.com/teploff/otus/sender/internal/implementation/service"
 	"github.com/teploff/otus/sender/internal/infrastructure/logger"
-	kitstan "github.com/teploff/otus/sender/internal/transport/stan"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"os/signal"
 	"syscall"
@@ -36,20 +33,16 @@ func main() {
 	}
 	defer stanConn.Close()
 
-	svc := service.NewNotifierService(zapLogger)
+	application := app.NewApp(cfg,
+		app.WithLogger(zapLogger),
+		app.WithDataBus(stanConn),
+	)
 
-	stanServer := kitstan.NewStan()
-	go func() {
-		err = stanServer.Serve(stanConn, notifier.MakeNotifierEndpoints(svc),
-			logger.NewZapSugarLogger(zapLogger, zapcore.ErrorLevel))
-		if err != nil {
-			zapLogger.Fatal("stan serve error", zap.Error(err))
-		}
-	}()
+	go application.Run()
 
-	quitCh := make(chan os.Signal, 1)
-	signal.Notify(quitCh, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	<-quitCh
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	<-done
 
-	stanServer.Stop()
+	application.Stop()
 }
