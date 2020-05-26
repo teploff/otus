@@ -7,6 +7,7 @@ import (
 	"github.com/teploff/otus/sender/internal/config"
 	"github.com/teploff/otus/sender/internal/infrastructure/logger"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,7 +35,7 @@ func main() {
 	defer stanConn.Close()
 
 	application := app.NewApp(cfg,
-		app.WithLogger(zapLogger),
+		app.WithLogger(logger.NewZapSugarLogger(zapLogger, zapcore.ErrorLevel)),
 		app.WithDataBus(stanConn),
 	)
 

@@ -1,21 +1,20 @@
 package app
 
 import (
+	"github.com/go-kit/kit/log"
 	"github.com/nats-io/stan.go"
 	"github.com/teploff/otus/sender/internal/config"
 	"github.com/teploff/otus/sender/internal/enpoints/notifier"
 	"github.com/teploff/otus/sender/internal/implementation/service"
-	"github.com/teploff/otus/sender/internal/infrastructure/logger"
 	kitstan "github.com/teploff/otus/sender/internal/transport/stan"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 // AppOption via application.
 type Option func(*App)
 
 // WithLogger adding logger option.
-func WithLogger(l *zap.Logger) Option {
+func WithLogger(l log.Logger) Option {
 	return func(a *App) {
 		a.logger = l
 	}
@@ -31,7 +30,7 @@ func WithDataBus(conn stan.Conn) Option {
 type App struct {
 	cfg             config.Config
 	stanConn        stan.Conn
-	logger          *zap.Logger
+	logger          log.Logger
 	stopCommandChan chan struct{}
 }
 
@@ -39,7 +38,6 @@ type App struct {
 func NewApp(cfg config.Config, opts ...Option) *App {
 	app := &App{
 		cfg:             cfg,
-		logger:          zap.NewNop(),
 		stopCommandChan: make(chan struct{}),
 	}
 
@@ -56,10 +54,9 @@ func (a *App) Run() {
 
 	stanServer := kitstan.NewStan()
 	go func() {
-		err := stanServer.Serve(a.stanConn, notifier.MakeNotifierEndpoints(svc),
-			logger.NewZapSugarLogger(a.logger, zapcore.ErrorLevel))
+		err := stanServer.Serve(a.stanConn, notifier.MakeNotifierEndpoints(svc), a.logger)
 		if err != nil {
-			a.logger.Fatal("stan serve error", zap.Error(err))
+			a.logger.Log("stan serve error", zap.Error(err))
 		}
 	}()
 

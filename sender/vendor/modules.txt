@@ -1,3 +1,5 @@
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
 # github.com/francoispqt/gojay v1.2.13
 ## explicit
 github.com/francoispqt/gojay
@@ -16,6 +18,12 @@ github.com/gogo/protobuf/protoc-gen-gogo/descriptor
 ## explicit
 # github.com/lib/pq v1.5.2
 ## explicit
+# github.com/mailru/easyjson v0.7.1
+## explicit
+github.com/mailru/easyjson
+github.com/mailru/easyjson/buffer
+github.com/mailru/easyjson/jlexer
+github.com/mailru/easyjson/jwriter
 # github.com/natefinch/lumberjack v2.0.0+incompatible
 ## explicit
 github.com/natefinch/lumberjack
@@ -37,8 +45,19 @@ github.com/nats-io/stan.go
 github.com/nats-io/stan.go/pb
 # github.com/pkg/errors v0.9.1
 ## explicit
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/satori/go.uuid v1.2.0
+## explicit
+github.com/satori/go.uuid
+# github.com/stretchr/objx v0.1.1
+github.com/stretchr/objx
 # github.com/stretchr/testify v1.5.1
 ## explicit
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/mock
+github.com/stretchr/testify/require
+github.com/stretchr/testify/suite
 # go.uber.org/atomic v1.6.0
 go.uber.org/atomic
 # go.uber.org/multierr v1.5.0

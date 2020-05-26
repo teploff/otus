@@ -2,10 +2,10 @@ package stan
 
 import (
 	"context"
+	"fmt"
 	"github.com/teploff/otus/sender/internal/enpoints/notifier"
 	"time"
 
-	"github.com/francoispqt/gojay"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/transport"
 	"github.com/nats-io/stan.go"
@@ -61,8 +61,8 @@ func (s *Stan) Stop() {
 // DecodeSendNotificationRequest decodes SendNotification request.
 func DecodeSendNotificationRequest(_ context.Context, msg *stan.Msg) (interface{}, error) {
 	var request notifier.SendNotificationRequest
-
-	if err := gojay.UnmarshalJSONObject(msg.Data, &request); err != nil {
+	fmt.Println(msg)
+	if err := request.UnmarshalJSON(msg.Data); err != nil {
 		return nil, err
 	}
 

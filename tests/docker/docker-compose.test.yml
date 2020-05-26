@@ -82,3 +82,18 @@ services:
       TEST_STAN_ADDR: "nats://nats_streaming_test:4222"
     networks:
       - test_network
+
+  sender_integration_tests:
+    build:
+      context: ../..
+      dockerfile: tests/docker/sender/Dockerfile
+    depends_on:
+      - postgres_test
+      - migrator_test
+      - nats_streaming_test
+    environment:
+      TEST_STAN_CLUSTER_NAME: "otus_cluster"
+      TEST_STAN_CLIENT_ID: "otus_client"
+      TEST_STAN_ADDR: "nats://nats_streaming_test:4222"
+    networks:
+      - test_network
